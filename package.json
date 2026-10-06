@@ -1,0 +1,12 @@
+{
+  "name": "kalkulator-stok-opnam-geprekin-aja",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kalkulator Sisa Stok Gudang - login crew, riwayat tersimpan di Vercel Blob",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.8.1"
+  }
+}

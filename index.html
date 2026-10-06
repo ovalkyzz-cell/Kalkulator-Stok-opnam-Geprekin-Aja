@@ -418,6 +418,74 @@
   #site.entered header.top{animation:fadeUp .55s ease both .05s;}
   #site.entered .summary{animation:fadeUp .55s ease both .16s;}
 
+  /* ===== RIWAYAT (DATABASE CLOUD) ===== */
+  .btn.mini.green{background:var(--green);}
+  .btn[disabled]{
+    opacity:.55;cursor:not-allowed;filter:grayscale(.4);
+  }
+  .btn[disabled]:hover{translate:none;box-shadow:var(--shadow-sm);}
+  .rw-row{
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
+    border:3px solid #000;border-radius:8px;background:#fff;box-shadow:4px 4px 0 #000;
+    padding:11px 13px;margin-bottom:12px;
+    transition:translate .15s ease, box-shadow .15s ease, opacity .3s ease;
+    animation:fadeUp .45s ease both;
+  }
+  .rw-row:hover{translate:-2px -2px;box-shadow:7px 7px 0 #000;}
+  .rw-row.gone{opacity:0;translate:60px 0;pointer-events:none;}
+  .rw-main{flex:1 1 260px;min-width:0;}
+  .rw-title{
+    font-family:'Montserrat',Arial,sans-serif;font-weight:900;font-size:14.5px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .rw-sub{font-size:11.5px;font-weight:600;opacity:.75;margin-top:3px;}
+  .rw-stats{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap;}
+  .chip{
+    border:2px solid #000;border-radius:4px;padding:3px 8px;font-size:10.5px;
+    font-family:'Montserrat',Arial,sans-serif;font-weight:900;letter-spacing:.5px;background:var(--gray);
+  }
+  .chip.ok{background:var(--green);}
+  .chip.min{background:var(--red);color:#fff;}
+  .rw-acts{display:flex;gap:8px;flex-wrap:wrap;}
+  .rw-acts .btn{padding:8px 12px;font-size:11px;}
+  .rw-detail{
+    border:3px solid #000;border-radius:8px;background:#FFFDF3;padding:12px;
+    margin:-4px 0 14px;animation:slideDown .3s ease both;
+  }
+  .rw-detail h5{
+    font-family:'Montserrat',Arial,sans-serif;font-weight:900;font-size:12px;
+    letter-spacing:1.5px;text-transform:uppercase;margin-bottom:9px;
+  }
+  .rw-empty{
+    text-align:center;padding:26px 14px;border:3px dashed #000;border-radius:8px;
+    background:#FAFAFA;font-weight:700;font-size:14px;
+  }
+  .rw-empty .big{font-size:34px;display:block;margin-bottom:6px;}
+  .rw-loading{
+    display:flex;align-items:center;justify-content:center;gap:12px;
+    padding:24px;font-weight:800;letter-spacing:1px;font-size:13px;
+  }
+  .rw-loading .dots span{
+    display:inline-block;width:11px;height:11px;background:#000;border:2px solid #000;
+    border-radius:50%;margin-right:5px;animation:dotb .9s ease-in-out infinite;
+  }
+  .rw-loading .dots span:nth-child(2){animation-delay:.15s;background:var(--blue);}
+  .rw-loading .dots span:nth-child(3){animation-delay:.3s;background:var(--green);}
+  @keyframes dotb{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+
+  .toast{
+    position:fixed;left:50%;top:18px;transform:translateX(-50%) translateY(-140%);
+    z-index:300;background:#000;color:#fff;border:3px solid #000;border-radius:8px;
+    box-shadow:6px 6px 0 rgba(0,0,0,.35);padding:13px 18px;max-width:min(92vw,460px);
+    font-family:'Montserrat',Arial,sans-serif;font-weight:800;font-size:13px;letter-spacing:.4px;
+    transition:transform .45s cubic-bezier(.2,1.3,.4,1), opacity .3s ease;opacity:0;
+    display:flex;align-items:center;gap:9px;
+  }
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+  .toast.good{background:var(--green);color:#000;border-color:#000;}
+  .toast.bad{background:var(--red);color:#fff;}
+  .toast.info{background:var(--blue);color:#fff;}
+
   @media (max-width:560px){
     .wrap{padding:14px 10px 40px;}
     .grid{grid-template-columns:1fr;}
@@ -490,6 +558,7 @@
       <span class="who guest" id="whoami">TAMU</span>
       <button class="btn mini snd" id="btnMute" type="button" title="Suara on/off">&#128266;</button>
       <button class="btn mini blue" id="btnLogout" type="button">Keluar</button>
+      <button class="btn mini green" id="btnRiwayat" type="button">Riwayat</button>
       <button class="btn mini" id="btnReset" type="button">Hapus Data</button>
     </div>
     <h1>Kalkulator <span class="hl">Sisa Stok</span> Gudang</h1>
@@ -515,6 +584,7 @@
         <div class="nota-meta" id="notaMeta"></div>
       </div>
       <div class="nota-actions">
+        <button class="btn" id="btnSimpan" type="button">Simpan ke Riwayat</button>
         <button class="btn" id="btnPrint" type="button">Cetak Nota</button>
         <span class="hint">Nota ikut ter-update saat nilai input diubah</span>
       </div>
@@ -522,8 +592,28 @@
     </div>
   </section>
 
+  <section id="riwayatWrap" class="hidden">
+    <div class="nota">
+      <div class="nota-head">
+        <div>
+          <h2>Riwayat Opnam Tersimpan</h2>
+          <div class="sub2">DATABASE CLOUD &bull; DATA PER AKUN &bull; AMAN &amp; TERISOLASI</div>
+        </div>
+        <div class="nota-meta" id="riwayatMeta"></div>
+      </div>
+      <div class="nota-actions">
+        <button class="btn" id="btnRefresh" type="button">Muat Ulang</button>
+        <button class="btn" id="btnTutupRiwayat" type="button">Tutup</button>
+        <span class="hint">Tiap akun crew hanya melihat riwayat miliknya sendiri</span>
+      </div>
+      <div class="nota-body" id="riwayatList"></div>
+    </div>
+  </section>
+
   <footer>KALKULATOR SISA STOK GUDANG &bull; 28 ITEM &bull; NEOSTOCK v1.0</footer>
 </div>
+
+<div id="toast" class="toast"></div>
 
 <button class="btn-main" id="btnHitung" type="button"><span class="ic">=</span> Hitung Sisa Stok</button>
 
@@ -930,8 +1020,11 @@ function attemptLogin(){
   }
   if(sha256(val) === CREW[selected].hash){
     sfx("login");
-    setSession({n:CREW[selected].name, g:0});
+    setSession({n:CREW[selected].name, g:0, cid:CREW[selected].id});
     enterApp();
+    requestToken(CREW[selected].id, val).then(okT => {
+      if(!okT) toast("Login server gagal — riwayat cloud tidak aktif.", "info");
+    }).catch(() => {});
   } else {
     showErr("Password salah untuk " + CREW[selected].name + ". Coba lagi.");
     shakeLogin(); sfx("error");
@@ -941,12 +1034,14 @@ function attemptLogin(){
 
 function guestLogin(){
   sfx("guest");
+  setToken(null);
   setSession({n:"Tamu", g:1});
   enterApp();
 }
 
 function logout(){
   sfx("logout");
+  setToken(null);
   setSession(null);
   showLogin();
 }
@@ -1010,7 +1105,14 @@ const SFX = {
   reset : {f:[330,220],        d:.11, t:"square",   v:.13},
   logout: {f:[494,330],        d:.11, t:"triangle", v:.13},
   eye   : {f:[1046],           d:.05, t:"sine",     v:.10},
-  mute  : {f:[600],            d:.06, t:"sine",     v:.11}
+  mute  : {f:[600],            d:.06, t:"sine",     v:.11},
+  save  : {f:[820,1046],       d:.11, t:"sine",     v:.14},
+  list  : {f:[740],            d:.08, t:"triangle", v:.13},
+  refresh:{f:[988],            d:.07, t:"square",   v:.11},
+  close : {f:[466,349],        d:.10, t:"triangle", v:.12},
+  view  : {f:[1100],           d:.07, t:"sine",     v:.12},
+  load  : {f:[700,880],        d:.10, t:"square",   v:.13},
+  del   : {f:[240,160],        d:.13, t:"sawtooth", v:.15}
 };
 let AC = null;
 let muted = false;
@@ -1054,7 +1156,9 @@ function bindSfx(){
   const map = {
     btnHitung:"hitung", btnPrint:"print", btnReset:"reset",
     btnGuest:"guest", btnEye:"eye", btnLogout:"logout",
-    crew0:"crewA", crew1:"crewB", crew2:"crewC"
+    crew0:"crewA", crew1:"crewB", crew2:"crewC",
+    btnRiwayat:"list", btnSimpan:"save", btnRefresh:"refresh",
+    btnTutupRiwayat:"close"
   };
   Object.keys(map).forEach(id => {
     const el = document.getElementById(id);
@@ -1112,6 +1216,306 @@ function bindAuth(){
 }
 
 /* =========================================================
+   RIWAYAT — KONEKSI DATABASE CLOUD (Vercel Blob)
+   ========================================================= */
+const TOKEN_KEY = "neostock-api-token";
+let lastResults = null;
+let lastOk = 0;
+let lastMinus = 0;
+let riwayatOpen = false;
+
+function apiBase(){
+  try{
+    if(typeof location !== "undefined" && location.origin && /^https?:$/.test(location.protocol)){
+      return location.origin;
+    }
+  }catch(e){}
+  return null;
+}
+
+function getToken(){
+  if(!LS_OK) return null;
+  try{ return localStorage.getItem(TOKEN_KEY); }catch(e){ return null; }
+}
+
+function setToken(t){
+  if(!LS_OK) return;
+  try{
+    if(t) localStorage.setItem(TOKEN_KEY, t);
+    else localStorage.removeItem(TOKEN_KEY);
+  }catch(e){}
+}
+
+async function apiCall(path, opts){
+  const base = apiBase();
+  if(!base) return null;
+  try{
+    const headers = Object.assign({}, (opts && opts.headers) || {});
+    const tok = getToken();
+    if(tok) headers["Authorization"] = "Bearer " + tok;
+    if(opts && opts.body) headers["Content-Type"] = "application/json";
+    const r = await fetch(base + path, Object.assign({}, opts || {}, {headers:headers}));
+    let data = null;
+    try{ data = await r.json(); }catch(e){}
+    if(r.status === 401){
+      setToken(null);
+      return {err:"Sesi riwayat berakhir — silakan login ulang."};
+    }
+    if(!r.ok) return {err:(data && data.error) || ("Gagal (" + r.status + ")")};
+    return data || {};
+  }catch(e){
+    return {err:"Tidak dapat terhubung ke server riwayat."};
+  }
+}
+
+function toast(msg, kind){
+  const el = document.getElementById("toast");
+  if(!el) return;
+  el.className = "toast " + (kind || "info");
+  el.innerHTML = (kind === "good" ? "&#10004; " : kind === "bad" ? "&#9888; " : "&#8505; ") + esc(msg);
+  void el.offsetWidth;
+  el.classList.add("show");
+  if(toast._t) clearTimeout(toast._t);
+  toast._t = setTimeout(() => { el.classList.remove("show"); }, 3800);
+}
+
+function requireCrew(){
+  if(session && !session.g) return true;
+  toast("Fitur riwayat hanya untuk akun crew (bukan Tamu).", "bad");
+  sfx("error");
+  return false;
+}
+
+async function requestToken(crewId, password){
+  const res = await apiCall("/api/auth", {method:"POST", body:JSON.stringify({crew:crewId, password:password})});
+  if(res && res.token){ setToken(res.token); return true; }
+  return false;
+}
+
+function buildPayload(){
+  if(!lastResults) return null;
+  const rekap = [];
+  const perSat = {};
+  lastResults.forEach(x => {
+    const label = x.item.units[x.item.units.length - 1][0];
+    if(!(label in perSat)){ perSat[label] = 0; rekap.push(label); }
+    perSat[label] += x.r.sisa;
+  });
+  const rekapList = rekap.map(label => ({label:label, total:fmtNum(perSat[label]) + " " + label}));
+
+  const items = lastResults.map(x => {
+    const id = x.item.id;
+    const s = x.item.units.map((u, i) => {
+      const el = document.getElementById("s-" + id + "-" + i);
+      return el ? el.value : "0";
+    });
+    const p = x.item.units.map((u, i) => {
+      const el = document.getElementById("p-" + id + "-" + i);
+      return el ? el.value : "0";
+    });
+    return {
+      id:id, name:x.item.name, cat:x.item.cat,
+      stok:x.r.stokText, pakai:x.r.pakaiText, sisa:x.r.text,
+      minus:x.r.minus, vals:{s:s, p:p}
+    };
+  });
+
+  const now = new Date();
+  const title = "Opnam " + now.toLocaleDateString("id-ID", {day:"2-digit", month:"short", year:"numeric"}) +
+                " • " + now.toLocaleTimeString("id-ID", {hour:"2-digit", minute:"2-digit"});
+  return {title:title, ok:lastOk, minus:lastMinus, rekap:rekapList, items:items};
+}
+
+async function simpanRiwayat(){
+  if(!requireCrew()) return;
+  if(!getToken()){ toast("Token sesi tidak ada — silakan login ulang.", "bad"); sfx("error"); return; }
+  if(!lastResults){ toast("Belum ada hasil hitung — klik tombol Hitung dulu.", "bad"); sfx("error"); return; }
+  const payload = buildPayload();
+  if(!payload){ toast("Data tidak siap disimpan.", "bad"); sfx("error"); return; }
+
+  const res = await apiCall("/api/history", {method:"POST", body:JSON.stringify(payload)});
+  if(res && res.ok){
+    toast("Riwayat tersimpan aman di database cloud.", "good");
+    sfx("save");
+    if(riwayatOpen) muatRiwayat(false);
+  } else {
+    toast((res && res.err) || "Gagal menyimpan riwayat.", "bad");
+    sfx("error");
+  }
+}
+
+function bukaRiwayat(){
+  if(!requireCrew()) return;
+  riwayatOpen = true;
+  const w = document.getElementById("riwayatWrap");
+  if(w) w.classList.remove("hidden");
+  muatRiwayat(false);
+}
+
+function tutupRiwayat(){
+  riwayatOpen = false;
+  const w = document.getElementById("riwayatWrap");
+  if(w) w.classList.add("hidden");
+}
+
+function rwLoading(){
+  const el = document.getElementById("riwayatList");
+  if(el){
+    el.innerHTML = '<div class="rw-loading"><span class="dots"><span></span><span></span><span></span></span>' +
+      'MENGAMBIL DATA DARI DATABASE...</div>';
+  }
+  const m = document.getElementById("riwayatMeta");
+  if(m) m.innerHTML = "STATUS: MEMUAT...";
+}
+
+function rwRowHTML(it, i){
+  const t = new Date(it.ts);
+  const tgl = t.toLocaleDateString("id-ID", {day:"2-digit", month:"short", year:"numeric"}) + " " +
+              t.toLocaleTimeString("id-ID", {hour:"2-digit", minute:"2-digit"});
+  return '<div class="rw-row" id="rw-' + it.id + '" style="animation-delay:' + (i * 55) + 'ms">' +
+    '<div class="rw-main">' +
+      '<div class="rw-title">' + esc(it.title || "Riwayat") +
+        '<span class="chip ' + (Number(it.minus) > 0 ? "min" : "ok") + '">' +
+        (Number(it.minus) > 0 ? "ADA MINUS" : "AMAN") + '</span></div>' +
+      '<div class="rw-sub">' + esc(tgl) + ' &bull; ' + esc(it.by || session.name) + ' &bull; ' +
+        (it.total || 0) + ' item</div>' +
+      '<div class="rw-stats">' +
+        '<span class="chip ok">NORMAL: ' + (Number(it.ok) || 0) + '</span>' +
+        '<span class="chip min">MINUS: ' + (Number(it.minus) || 0) + '</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="rw-acts">' +
+      '<button class="btn" type="button" id="vw_' + it.id + '">Lihat</button>' +
+      '<button class="btn" type="button" id="lw_' + it.id + '">Muat</button>' +
+      '<button class="btn" type="button" id="dl_' + it.id + '">Hapus</button>' +
+    '</div>' +
+  '</div>' +
+  '<div id="dw_' + it.id + '"></div>';
+}
+
+async function muatRiwayat(showToast){
+  rwLoading();
+  const res = await apiCall("/api/history");
+  const box = document.getElementById("riwayatList");
+  const meta = document.getElementById("riwayatMeta");
+  if(!box) return;
+  if(!res || res.err){
+    box.innerHTML = '<div class="rw-empty"><span class="big">&#9888;</span>' +
+      esc((res && res.err) || "Tidak dapat terhubung ke database.") + '</div>';
+    if(meta) meta.innerHTML = "STATUS: GAGAL";
+    if(showToast !== false) toast((res && res.err) || "Gagal memuat riwayat.", "bad");
+    return;
+  }
+  const items = res.items || [];
+  if(meta){
+    meta.innerHTML = "AKUN: " + esc(res.name || (session && session.n) || "Tamu") +
+      "<br>JUMLAH: " + items.length + " RIWAYAT<br>DB: VERCEL BLOB (PRIVATE)";
+  }
+  if(!items.length){
+    box.innerHTML = '<div class="rw-empty"><span class="big">&#128194;</span>Belum ada riwayat tersimpan.<br>' +
+      '<span style="font-weight:600;font-size:12px;opacity:.7">Klik "Simpan ke Riwayat" setelah melakukan hitung.</span></div>';
+    return;
+  }
+  box.innerHTML = items.map((it, i) => rwRowHTML(it, i)).join("");
+  items.forEach(it => {
+    const vw = document.getElementById("vw_" + it.id);
+    const lw = document.getElementById("lw_" + it.id);
+    const dl = document.getElementById("dl_" + it.id);
+    if(vw) vw.addEventListener("click", () => { sfx("view"); lihatRiwayat(it.id); });
+    if(lw) lw.addEventListener("click", () => { sfx("load"); muatKeForm(it.id); });
+    if(dl) dl.addEventListener("click", () => { sfx("del"); hapusRiwayat(it.id); });
+  });
+}
+
+async function lihatRiwayat(id){
+  const box = document.getElementById("dw_" + id);
+  if(!box) return;
+  if(box.innerHTML){ box.innerHTML = ""; return; }
+  box.innerHTML = '<div class="rw-detail"><h5>Mengambil detail...</h5></div>';
+  const res = await apiCall("/api/history?id=" + encodeURIComponent(id));
+  if(!res || res.err || !res.record){
+    box.innerHTML = '<div class="rw-detail"><h5>Gagal memuat detail</h5>' + esc((res && res.err) || "Data tidak ditemukan.") + '</div>';
+    return;
+  }
+  const r = res.record;
+  let rows = "";
+  (r.items || []).forEach((it, i) => {
+    rows += '<tr class="' + (it.minus ? "minus-row" : "") + '">' +
+      '<td class="num">' + (it.id || (i + 1)) + '</td>' +
+      '<td class="bname">' + esc(it.name) + '</td>' +
+      '<td>' + esc(it.stok) + '</td>' +
+      '<td>' + esc(it.pakai) + '</td>' +
+      '<td class="sisa">' + esc(it.sisa) + '</td>' +
+      '<td style="text-align:center;"><span class="st ' + (it.minus ? "min" : "ok") + '">' +
+      (it.minus ? "MINUS" : "OK") + '</span></td></tr>';
+  });
+  let rekap = "";
+  (r.rekap || []).forEach(x => {
+    rekap += '<div class="rekap-line"><span>Total Sisa ' + esc(x.label) + '</span><span>' + esc(x.total) + '</span></div>';
+  });
+  box.innerHTML = '<div class="rw-detail">' +
+    '<h5>' + esc(r.title || "Detail Riwayat") + ' &bull; ' + esc(r.name || "") + '</h5>' +
+    '<div class="table-wrap"><table class="nota-table">' +
+    '<thead><tr><th>No</th><th>Barang</th><th>Stok Awal</th><th>Pemakaian</th><th>Sisa</th><th>Status</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table></div>' +
+    '<div class="nota-grid"><div class="nota-card" style="grid-column:1/-1;">' +
+    '<h4>Rekap Total Sisa Per Satuan</h4>' + (rekap || "-") + '</div></div>' +
+    '</div>';
+}
+
+async function muatKeForm(id){
+  const res = await apiCall("/api/history?id=" + encodeURIComponent(id));
+  if(!res || res.err || !res.record){
+    toast((res && res.err) || "Data tidak ditemukan.", "bad");
+    return;
+  }
+  const r = res.record;
+  let n = 0;
+  (r.items || []).forEach(it => {
+    if(!it.vals) return;
+    (it.vals.s || []).forEach((v, i) => {
+      const el = document.getElementById("s-" + it.id + "-" + i);
+      if(el){ el.value = v; n++; }
+    });
+    (it.vals.p || []).forEach((v, i) => {
+      const el = document.getElementById("p-" + it.id + "-" + i);
+      if(el){ el.value = v; n++; }
+    });
+  });
+  hitung(false);
+  toast("Riwayat dimuat ke formulir (" + n + " kolom).", "good");
+}
+
+async function hapusRiwayat(id){
+  const okHapus = (typeof confirm === "function")
+    ? confirm("Hapus riwayat ini dari database? Tindakan tidak bisa dibatalkan.")
+    : true;
+  if(!okHapus) return;
+  const res = await apiCall("/api/history?id=" + encodeURIComponent(id), {method:"DELETE"});
+  if(res && res.ok){
+    const row = document.getElementById("rw-" + id);
+    const det = document.getElementById("dw_" + id);
+    if(row) row.classList.add("gone");
+    if(det) det.innerHTML = "";
+    toast("Riwayat dihapus dari database.", "good");
+    setTimeout(() => muatRiwayat(false), 320);
+  } else {
+    toast((res && res.err) || "Gagal menghapus riwayat.", "bad");
+  }
+}
+
+function bindHistory(){
+  const b1 = document.getElementById("btnRiwayat");
+  if(b1) b1.addEventListener("click", bukaRiwayat);
+  const b2 = document.getElementById("btnTutupRiwayat");
+  if(b2) b2.addEventListener("click", tutupRiwayat);
+  const b3 = document.getElementById("btnRefresh");
+  if(b3) b3.addEventListener("click", () => muatRiwayat(true));
+  const b4 = document.getElementById("btnSimpan");
+  if(b4) b4.addEventListener("click", simpanRiwayat);
+}
+
+/* =========================================================
    HITUNG
    ========================================================= */
 function hitung(scrollToNota){
@@ -1156,6 +1560,9 @@ function hitung(scrollToNota){
   st.style.color = minusCount > 0 ? "#FF3B30" : "#0B6B0B";
 
   renderNota(results, okCount, minusCount);
+  lastResults = results;
+  lastOk = okCount;
+  lastMinus = minusCount;
 
   calculated = true;
   firstCalc = false;
@@ -1258,6 +1665,7 @@ render();
 bind();
 bindSfx();
 bindAuth();
+bindHistory();
 initLogin();
 
 if(!LS_OK){
