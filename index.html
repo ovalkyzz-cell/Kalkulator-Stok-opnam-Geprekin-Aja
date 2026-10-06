@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator Sisa Stok Gudang</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FDF6E3;
+    --ink:#000000;
+    --paper:#FFFFFF;
+    --blue:#4C8DFF;
+    --green:#B8FF3D;
+    --orange:#FF6B35;
+    --yellow:#FFE04D;
+    --pink:#FF8FB1;
+    --red:#FF3B30;
+    --gray:#EDEDED;
+    --shadow:6px 6px 0px #000;
+    --shadow-sm:4px 4px 0px #000;
+    --border:3px solid #000;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    font-family:'Space Grotesk','Montserrat',Arial,Helvetica,sans-serif;
+    background-color:var(--bg);
+    background-image:radial-gradient(#00000022 1.2px, transparent 1.2px);
+    background-size:22px 22px;
+    color:var(--ink);
+    line-height:1.45;
+    padding-bottom:130px;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{max-width:1280px;margin:0 auto;padding:20px 16px 40px;}
+
+  /* ===== HEADER ===== */
+  header.top{
+    background:var(--yellow);
+    border:var(--border);
+    box-shadow:var(--shadow);
+    border-radius:8px;
+    padding:22px 22px 20px;
+    margin-bottom:26px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.top::after{
+    content:"STOK GUDANG";
+    position:absolute;right:-14px;top:14px;
+    font-family:'Montserrat',Arial,sans-serif;
+    font-weight:900;font-size:64px;letter-spacing:2px;
+    color:#00000010;transform:rotate(8deg);pointer-events:none;
+    white-space:nowrap;
+  }
+  .badge{
+    display:inline-block;background:var(--ink);color:var(--green);
+    font-family:'Montserrat',Arial,sans-serif;font-weight:800;
+    font-size:12px;letter-spacing:2px;padding:6px 12px;border-radius:4px;
+    margin-bottom:12px;
+  }
+  h1{
+    font-family:'Montserrat',Arial,sans-serif;
+    font-weight:900;font-size:clamp(24px,4.4vw,42px);
+    text-transform:uppercase;letter-spacing:-0.5px;
+    line-height:1.05;
+  }
+  h1 .hl{
+    background:var(--blue);color:#fff;padding:0 8px;
+    border:3px solid #000;box-shadow:4px 4px 0 #000;
+    display:inline-block;transform:rotate(-1deg);margin-top:6px;
+  }
+  .sub{margin-top:12px;font-weight:500;font-size:15px;max-width:760px;}
+  .head-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px;}
+  .save-info{
+    background:#fff;border:2px solid #000;border-radius:4px;
+    padding:6px 10px;font-size:11px;font-weight:800;letter-spacing:1px;
+  }
+  .save-info.err{background:var(--red);color:#fff;}
+  .btn.mini{padding:7px 13px;font-size:11px;background:var(--orange);}
+
+  /* ===== SUMMARY BAR ===== */
+  .summary{
+    display:flex;flex-wrap:wrap;gap:12px;margin-bottom:26px;
+  }
+  .sum-box{
+    flex:1 1 180px;background:var(--paper);border:var(--border);
+    box-shadow:var(--shadow-sm);border-radius:6px;padding:12px 14px;
+  }
+  .sum-box .k{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:.7;}
+  .sum-box .v{font-family:'Montserrat',Arial,sans-serif;font-weight:900;font-size:24px;}
+  .sum-box.b{background:var(--blue);color:#fff;}
+  .sum-box.g{background:var(--green);}
+  .sum-box.r{background:var(--red);color:#fff;}
+
+  /* ===== CATEGORY ===== */
+  .cat{margin-bottom:34px;}
+  .cat-head{
+    display:flex;align-items:center;gap:12px;
+    border:var(--border);box-shadow:var(--shadow-sm);
+    border-radius:6px;padding:12px 16px;margin-bottom:18px;
+    font-family:'Montserrat',Arial,sans-serif;font-weight:900;
+    font-size:clamp(15px,2.4vw,20px);text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+  .cat-head .num{
+    background:#000;color:#fff;font-size:13px;padding:4px 10px;
+    border-radius:4px;letter-spacing:1px;flex-shrink:0;
+  }
+  .cat-ayam{background:var(--orange);color:#000;}
+  .cat-kering{background:var(--yellow);}
+  .cat-sachet{background:var(--blue);color:#fff;}
+  .cat-pack{background:var(--green);}
+
+  .grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));
+    gap:18px;
+  }
+
+  /* ===== ITEM CARD ===== */
+  .card{
+    background:var(--paper);border:var(--border);box-shadow:var(--shadow);
+    border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:12px;
+    transition:transform .08s ease;
+  }
+  .card-head{display:flex;align-items:flex-start;gap:10px;}
+  .card-id{
+    flex-shrink:0;width:34px;height:34px;background:#000;color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Montserrat',Arial,sans-serif;font-weight:900;font-size:14px;
+    border-radius:4px;
+  }
+  .card-name{
+    font-family:'Montserrat',Arial,sans-serif;font-weight:800;
+    font-size:16px;line-height:1.2;text-transform:uppercase;
+  }
+  .card-conv{
+    font-size:11.5px;font-weight:500;background:var(--gray);
+    border:2px solid #000;border-radius:4px;padding:3px 7px;
+    display:inline-block;margin-top:6px;
+  }
+
+  .row{
+    display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+    background:#FAFAFA;border:2px solid #000;border-radius:6px;
+    padding:9px 10px;
+  }
+  .row-label{
+    font-family:'Montserrat',Arial,sans-serif;font-weight:800;font-size:11px;
+    letter-spacing:1px;text-transform:uppercase;min-width:86px;
+  }
+  .row.stok .row-label{color:#0B6B0B;}
+  .row.pakai .row-label{color:#B00020;}
+  .fields{display:flex;flex-wrap:wrap;gap:8px;flex:1;}
+  .field{display:flex;align-items:center;gap:5px;}
+  .field input{
+    width:78px;height:38px;border:3px solid #000;border-radius:4px;
+    background:#fff;font-family:'Space Grotesk',Arial,sans-serif;
+    font-weight:700;font-size:15px;text-align:center;padding:0 4px;
+    outline:none;transition:box-shadow .08s ease,transform .08s ease;
+  }
+  .field input:focus{
+    background:#FFFCEB;box-shadow:3px 3px 0 #000;transform:translate(-1px,-1px);
+  }
+  .field input::-webkit-outer-spin-button,
+  .field input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .field .unit{
+    font-family:'Montserrat',Arial,sans-serif;font-weight:800;font-size:10.5px;
+    letter-spacing:.5px;background:var(--yellow);border:2px solid #000;
+    border-radius:3px;padding:3px 5px;min-width:34px;text-align:center;
+  }
+
+  /* ===== RESULT ===== */
+  .result{
+    border:3px dashed #000;border-radius:6px;padding:11px 12px;
+    background:var(--gray);text-align:center;
+    font-weight:700;font-size:13px;
+  }
+  .result.pending{opacity:.75;font-weight:500;font-style:italic;}
+  .result.ok{background:var(--green);border-style:solid;}
+  .result.minus{
+    background:var(--red);color:#fff;border-style:solid;
+    animation:pulse .35s ease 1;
+  }
+  @keyframes pulse{0%{transform:scale(.97);}100%{transform:scale(1);}}
+  .result .rlabel{
+    font-family:'Montserrat',Arial,sans-serif;font-weight:900;font-size:10.5px;
+    letter-spacing:1.6px;margin-bottom:3px;
+  }
+  .result .rvalue{
+    font-family:'Montserrat',Arial,sans-serif;font-weight:900;
+    font-size:19px;line-height:1.2;word-break:break-word;
+  }
+  .result .rtotal{font-size:11.5px;font-weight:700;margin-top:4px;opacity:.85;}
+  .result .rbreak{
+    font-size:11px;font-weight:600;margin-top:6px;padding-top:6px;
+    border-top:2px solid #000;opacity:.9;
+  }
+  .result .rwarn{font-family:'Montserrat',Arial,sans-serif;font-weight:900;font-size:15px;}
+
+  /* ===== BUTTONS ===== */
+  .btn{
+    font-family:'Montserrat',Arial,sans-serif;font-weight:900;
+    text-transform:uppercase;letter-spacing:1px;border:3px solid #000;
+    box-shadow:var(--shadow-sm);border-radius:6px;cursor:pointer;
+    background:#fff;font-size:13px;padding:11px 16px;
+    transition:transform .07s ease,box-shadow .07s ease;
+  }
+  .btn:hover{transform:translate(4px,4px);box-shadow:0 0 0 #000;}
+  .btn:active{transform:translate(4px,4px);box-shadow:0 0 0 #000;}
+
+  .btn-main{
+    position:fixed;left:50%;bottom:22px;transform:translateX(-50%);
+    z-index:99;background:var(--green);border:4px solid #000;
+    box-shadow:7px 7px 0 #000;border-radius:10px;
+    font-size:clamp(15px,2.6vw,19px);padding:16px 34px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .btn-main:hover{
+    transform:translateX(-50%) translate(5px,5px);box-shadow:2px 2px 0 #000;
+  }
+  .btn-main:active{
+    transform:translateX(-50%) translate(7px,7px);box-shadow:0 0 0 #000;
+  }
+  .btn-main .ic{
+    background:#000;color:var(--green);border-radius:4px;
+    padding:2px 8px;font-size:16px;
+  }
+
+  /* ===== NOTA / REKAP HASIL ===== */
+  .hidden{display:none;}
+  #notaWrap{margin-top:8px;}
+  .nota{
+    background:var(--paper);border:4px solid #000;box-shadow:8px 8px 0 #000;
+    border-radius:10px;overflow:hidden;margin-bottom:34px;
+  }
+  .nota-head{
+    background:#000;color:var(--green);padding:16px 18px;
+    display:flex;flex-wrap:wrap;justify-content:space-between;
+    align-items:center;gap:10px;
+  }
+  .nota-head h2{
+    font-family:'Montserrat',Arial,sans-serif;font-weight:900;font-size:clamp(17px,3vw,22px);
+    text-transform:uppercase;letter-spacing:1px;line-height:1.15;
+  }
+  .nota-head .sub2{
+    font-size:11.5px;font-weight:700;letter-spacing:2px;color:#fff;opacity:.8;margin-top:4px;
+  }
+  .nota-meta{
+    font-size:11.5px;font-weight:700;color:#fff;text-align:right;line-height:1.6;
+    background:#111;border:2px solid var(--green);border-radius:5px;padding:7px 10px;
+  }
+  .nota-actions{
+    background:var(--yellow);border-bottom:3px solid #000;
+    padding:11px 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  }
+  .nota-actions .hint{
+    font-size:11.5px;font-weight:700;letter-spacing:.5px;margin-left:auto;opacity:.75;
+  }
+  .nota-body{padding:16px;}
+  .table-wrap{overflow-x:auto;border:3px solid #000;border-radius:6px;}
+  table.nota-table{
+    width:100%;border-collapse:collapse;font-size:13px;min-width:660px;background:#fff;
+  }
+  .nota-table th,.nota-table td{border:2px solid #000;padding:8px 9px;text-align:left;vertical-align:top;}
+  .nota-table thead th{
+    background:var(--blue);color:#fff;font-family:'Montserrat',Arial,sans-serif;
+    font-weight:800;font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap;
+  }
+  .nota-table td.num{
+    text-align:center;width:40px;background:#F2F2F2;font-family:'Montserrat',Arial,sans-serif;
+    font-weight:900;font-size:12px;
+  }
+  .nota-table td.sisa{font-weight:800;background:#FFFCE8;}
+  .nota-table td.bname{font-weight:800;}
+  .nota-table tr.cat-row td{
+    background:var(--green);font-family:'Montserrat',Arial,sans-serif;font-weight:900;
+    text-transform:uppercase;font-size:11.5px;letter-spacing:1.2px;
+  }
+  .nota-table tr.minus-row td.sisa{background:#FFD9D6;color:#A5001A;}
+  .st{
+    display:inline-block;border:2px solid #000;font-family:'Montserrat',Arial,sans-serif;
+    font-weight:900;font-size:9.5px;letter-spacing:1px;padding:3px 7px;border-radius:3px;white-space:nowrap;
+  }
+  .st.ok{background:var(--green);}
+  .st.min{background:var(--red);color:#fff;}
+  .nota-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:14px;margin-top:16px;
+  }
+  .nota-card{border:3px solid #000;border-radius:6px;padding:11px 13px;background:#FAFAFA;}
+  .nota-card.g{background:var(--green);}
+  .nota-card.r{background:var(--red);color:#fff;}
+  .nota-card.b{background:var(--blue);color:#fff;}
+  .nota-card h4{
+    font-family:'Montserrat',Arial,sans-serif;font-size:10.5px;letter-spacing:1.5px;
+    text-transform:uppercase;margin-bottom:6px;
+  }
+  .nota-card .big{font-family:'Montserrat',Arial,sans-serif;font-weight:900;font-size:26px;line-height:1.1;}
+  .rekap-line{
+    display:flex;justify-content:space-between;gap:10px;
+    border-bottom:2px dashed #000;padding:4px 0;font-weight:700;font-size:13px;
+  }
+  .rekap-line:last-child{border-bottom:0;}
+  .alert-min{
+    background:var(--red);color:#fff;border:3px solid #000;border-radius:6px;
+    padding:11px 12px;margin-top:14px;text-align:center;
+    font-family:'Montserrat',Arial,sans-serif;font-weight:900;font-size:14px;letter-spacing:.5px;
+  }
+  .sign{display:flex;gap:16px;flex-wrap:wrap;margin-top:20px;}
+  .sign .box{
+    flex:1 1 220px;border:3px dashed #000;border-radius:6px;padding:10px 12px;
+    min-height:104px;font-size:12px;font-weight:700;display:flex;flex-direction:column;justify-content:space-between;
+  }
+  .sign .line{border-top:2px solid #000;margin-top:40px;padding-top:5px;text-align:center;font-size:11px;letter-spacing:1.5px;}
+
+  footer{
+    text-align:center;font-size:12px;font-weight:600;margin-top:30px;
+    border-top:3px solid #000;padding-top:14px;
+  }
+
+  @media (max-width:560px){
+    .wrap{padding:14px 10px 40px;}
+    .grid{grid-template-columns:1fr;}
+    .row-label{min-width:100%;}
+    .field input{width:70px;}
+    .btn-main{padding:14px 20px;bottom:14px;width:calc(100% - 28px);justify-content:center;}
+    header.top::after{display:none;}
+    .nota-body{padding:11px;}
+    .nota-actions .hint{display:none;}
+  }
+
+  @media print{
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    body{background:#fff!important;padding:0!important;padding-bottom:0!important;}
+    header.top,.summary,#app,footer,.btn-main,.nota-actions{display:none!important;}
+    .wrap{max-width:none;padding:0;}
+    #notaWrap.has-nota{display:block!important;}
+    .nota{box-shadow:none;border-width:2px;border-radius:0;margin-bottom:0;}
+    .nota-head{background:#000!important;}
+    .table-wrap{overflow:visible;border-width:2px;}
+    table.nota-table{min-width:0;font-size:12px;}
+    .nota-table th,.nota-table td{border-width:1.5px;padding:6px 7px;}
+    .nota-grid{grid-template-columns:repeat(3,1fr);}
+    .sign .box{break-inside:avoid;}
+    tr{break-inside:avoid;page-break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="head-tools">
+      <span class="badge">NEOBRUTALIST WAREHOUSE TOOL</span>
+      <span class="save-info" id="saveInfo">AUTO-SAVE AKTIF</span>
+      <button class="btn mini" id="btnReset" type="button">Hapus Data</button>
+    </div>
+    <h1>Kalkulator <span class="hl">Sisa Stok</span> Gudang</h1>
+    <p class="sub">Masukkan <b>Stok Awal</b> dan <b>Pemakaian</b> setiap barang sesuai satuannya, lalu tekan tombol <b>Hitung Sisa Stok</b>. Semua nilai otomatis dikonversi ke satuan terkecil lalu dikembalikan ke format multi-satuan. <b>Data input tersimpan otomatis di browser</b> — aman saat refresh, tutup tab, atau dibuka lagi nanti.</p>
+  </header>
+
+  <section class="summary" id="summary">
+    <div class="sum-box b"><div class="k">Total Barang</div><div class="v" id="sumTotal">28</div></div>
+    <div class="sum-box g"><div class="k">Sisa Normal</div><div class="v" id="sumOk">-</div></div>
+    <div class="sum-box r"><div class="k">Sisa Minus</div><div class="v" id="sumMinus">-</div></div>
+    <div class="sum-box"><div class="k">Status</div><div class="v" id="sumStatus" style="font-size:15px;">BELUM DIHITUNG</div></div>
+  </section>
+
+  <main id="app"></main>
+
+  <section id="notaWrap" class="hidden">
+    <div class="nota">
+      <div class="nota-head">
+        <div>
+          <h2>Nota Rekap Sisa Stok Gudang</h2>
+          <div class="sub2">HASIL PERHITUNGAN STOK AWAL &minus; PEMAKAIAN</div>
+        </div>
+        <div class="nota-meta" id="notaMeta"></div>
+      </div>
+      <div class="nota-actions">
+        <button class="btn" id="btnPrint" type="button">Cetak Nota</button>
+        <span class="hint">Nota ikut ter-update saat nilai input diubah</span>
+      </div>
+      <div class="nota-body" id="notaBody"></div>
+    </div>
+  </section>
+
+  <footer>KALKULATOR SISA STOK GUDANG &bull; 28 ITEM &bull; NEOSTOCK v1.0</footer>
+</div>
+
+<button class="btn-main" id="btnHitung" type="button"><span class="ic">=</span> Hitung Sisa Stok</button>
+
+<script>
+/* =========================================================
+   DATA BARANG & KONVERSI
+   units: [label, faktor ke satuan terkecil]
+   ========================================================= */
+const ITEMS = [
+  {id:1,  name:"Ayam Besar Cut 9",        cat:"ayam",   units:[["Pack",10],["Pcs",1]],                 conv:"1 Pack = 10 Pcs"},
+  {id:2,  name:"Ayam Kecil Cut 9",        cat:"ayam",   units:[["Pack",8],["Pcs",1]],                  conv:"1 Pack = 8 Pcs"},
+  {id:3,  name:"Ayam Cut 14",             cat:"ayam",   units:[["Pack",14],["Pcs",1]],                 conv:"1 Pack = 14 Pcs"},
+  {id:4,  name:"Ceker Merah",             cat:"ayam",   units:[["Pack",4],["Pcs",1]],                  conv:"1 Pack = 4 Pcs"},
+  {id:5,  name:"Beras",                   cat:"kering", units:[["Zak",25000],["Gr",1]],                conv:"1 Zak = 25.000 Gr"},
+  {id:6,  name:"Tepung Breader",          cat:"kering", units:[["Dus",25000],["Pack",12500],["Gr",1]], conv:"1 Dus = 2 Pack, 1 Pack = 12.500 Gr"},
+  {id:7,  name:"Sambal",                  cat:"kering", units:[["Pack",1000],["Gr",1]],                conv:"1 Pack = 1.000 Gr"},
+  {id:8,  name:"Saos Gangnam",            cat:"kering", units:[["Pack",1000],["Gr",1]],                conv:"1 Pack = 1.000 Gr"},
+  {id:9,  name:"Minyak Goreng",           cat:"kering", units:[["Dus",18],["Jrg",10],["Liter",1]],     conv:"1 Jrg = 10 Liter, 1 Dus = 18 Liter"},
+  {id:10, name:"French Fries",            cat:"kering", units:[["Pack",2000],["Gr",1]],                conv:"1 Pack = 2.000 Gr"},
+  {id:11, name:"Chili Sachet",            cat:"sachet", units:[["Dus",510],["Pack",34],["Pcs",1]],     conv:"1 Dus = 15 Pack, 1 Pack = 34 Pcs"},
+  {id:12, name:"Tomat Sachet",            cat:"sachet", units:[["Dus",510],["Pack",34],["Pcs",1]],     conv:"1 Dus = 15 Pack, 1 Pack = 34 Pcs"},
+  {id:13, name:"Le Minerale",             cat:"sachet", units:[["Dus",24],["Pcs",1]],                  conv:"1 Dus = 24 Pcs"},
+  {id:14, name:"Teh Pucuk",               cat:"sachet", units:[["Dus",24],["Pcs",1]],                  conv:"1 Dus = 24 Pcs"},
+  {id:15, name:"Lunchbox",                cat:"pack",   units:[["Pack",200],["Lembar",1]],             conv:"1 Pack = 200 Lembar"},
+  {id:16, name:"Paper Bag",               cat:"pack",   units:[["Pack",100],["Lembar",1]],             conv:"1 Pack = 100 Lembar"},
+  {id:17, name:"Cup Sambel 25 Gr",        cat:"pack",   units:[["Dus",1200],["Pack",50],["Pcs",1]],    conv:"1 Dus = 24 Pack, 1 Pack = 50 Pcs"},
+  {id:18, name:"Cup Saos Gangnam 35 Gr",  cat:"pack",   units:[["Pack",50],["Pcs",1]],                 conv:"1 Pack = 50 Pcs"},
+  {id:19, name:"Kertas Wrap",             cat:"pack",   units:[["Dus",5000],["Pack",100],["Pcs",1]],   conv:"1 Dus = 50 Pack, 1 Pack = 100 Pcs"},
+  {id:20, name:"Kresek Uk. 21",           cat:"pack",   units:[["Ikat",500],["Pack",50],["Pcs",1]],    conv:"1 Ikat = 10 Pack, 1 Pack = 50 Pcs"},
+  {id:21, name:"Kresek Uk. 28",           cat:"pack",   units:[["Ikat",500],["Pack",50],["Pcs",1]],    conv:"1 Ikat = 10 Pack, 1 Pack = 50 Pcs"},
+  {id:22, name:"Kresek Uk. 40",           cat:"pack",   units:[["Ikat",250],["Pack",50],["Pcs",1]],    conv:"1 Ikat = 5 Pack, 1 Pack = 50 Pcs"},
+  {id:23, name:"Kresek Uk. 50/55",        cat:"pack",   units:[["Ikat",150],["Pack",30],["Pcs",1]],    conv:"1 Ikat = 5 Pack, 1 Pack = 30 Pcs"},
+  {id:24, name:"Kertas Termal",           cat:"pack",   units:[["Dus",100],["Pack",10],["Pcs",1]],     conv:"1 Dus = 10 Pack, 1 Pack = 10 Pcs"},
+  {id:25, name:"Hand Glove",              cat:"pack",   units:[["Pack",100],["Pcs",1]],                conv:"1 Pack = 100 Pcs"},
+  {id:26, name:"Dimsum",                  cat:"pack",   units:[["Pack",4],["Pcs",1]],                  conv:"1 Pack = 4 Pcs"},
+  {id:27, name:"Box Dimsum",              cat:"pack",   units:[["Pack",50],["Pcs",1]],                 conv:"1 Pack = 50 Pcs"},
+  {id:28, name:"Paper French Fries",      cat:"pack",   units:[["Ikat",200],["Pcs",1]],                conv:"1 Ikat = 200 Pcs"}
+];
+
+const CATS = [
+  {key:"ayam",   title:"Kategori Ayam",                 cls:"cat-ayam"},
+  {key:"kering", title:"Kategori Bahan Kering & Bumbu", cls:"cat-kering"},
+  {key:"sachet", title:"Kategori Sachet & Minuman",     cls:"cat-sachet"},
+  {key:"pack",   title:"Kategori Packaging & Lain-lain",cls:"cat-pack"}
+];
+
+/* =========================================================
+   LOGIKA MURNI
+   ========================================================= */
+function parseNum(raw){
+  if(raw === null || raw === undefined) return 0;
+  let s = String(raw).trim().replace(/\s/g,"");
+  if(s === "") return 0;
+  s = s.replace(/\.(?=\d{3}(\D|$))/g,"");
+  s = s.replace(",",".");
+  const n = parseFloat(s);
+  if(!isFinite(n) || isNaN(n) || n < 0) return 0;
+  return n;
+}
+
+function toSmallest(values, units){
+  let total = 0;
+  for(let i = 0; i < units.length; i++){
+    total += (values[i] || 0) * units[i][1];
+  }
+  return total;
+}
+
+function fmtNum(n){
+  if(Number.isInteger(n)) return n.toLocaleString("id-ID");
+  return n.toLocaleString("id-ID",{maximumFractionDigits:2});
+}
+
+/* Konversi balik ke multi-satuan memakai Modulo (%) */
+function formatUnits(total, units){
+  const last = units[units.length - 1][0];
+  if(total === 0) return "0 " + last;
+  if(!Number.isInteger(total)) return fmtNum(total) + " " + last;
+
+  const sign = total < 0 ? "-" : "";
+  let rem = Math.abs(total);
+  const parts = [];
+  for(let i = 0; i < units.length; i++){
+    const factor = units[i][1];
+    const label = units[i][0];
+    const q = Math.floor(rem / factor);
+    rem = rem % factor;
+    const isLast = i === units.length - 1;
+    if(q > 0 || (isLast && parts.length === 0)){
+      parts.push(fmtNum(q) + " " + label);
+    }
+  }
+  return sign + parts.join(" ");
+}
+
+function computeItem(item, stokValues, pakaiValues){
+  const stok = toSmallest(stokValues, item.units);
+  const pakai = toSmallest(pakaiValues, item.units);
+  const sisa = stok - pakai;
+  return {
+    id:item.id,
+    stok:stok,
+    pakai:pakai,
+    sisa:sisa,
+    minus:sisa < 0,
+    text:formatUnits(sisa, item.units),
+    stokText:formatUnits(stok, item.units),
+    pakaiText:formatUnits(pakai, item.units)
+  };
+}
+//RENDER_START
+
+/* =========================================================
+   RENDER UI
+   ========================================================= */
+const app = document.getElementById("app");
+let calculated = false;
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function inputHTML(prefix, itemId, idx, unitLabel){
+  return '<div class="field">' +
+    '<input type="text" inputmode="decimal" autocomplete="off" id="' + prefix + '-' + itemId + '-' + idx + '" value="0" aria-label="' + esc(unitLabel) + '">' +
+    '<span class="unit">' + esc(unitLabel) + '</span>' +
+  '</div>';
+}
+
+function render(){
+  let html = "";
+  CATS.forEach((cat, ci) => {
+    const list = ITEMS.filter(i => i.cat === cat.key);
+    html += '<section class="cat">';
+    html += '<div class="cat-head ' + cat.cls + '"><span class="num">KATEGORI ' + (ci + 1) + '</span><span>' + esc(cat.title) + '</span></div>';
+    html += '<div class="grid">';
+    list.forEach(item => {
+      const stokFields = item.units.map((u, i) => inputHTML("s", item.id, i, u[0])).join("");
+      const pakaiFields = item.units.map((u, i) => inputHTML("p", item.id, i, u[0])).join("");
+      html += '<article class="card" id="card-' + item.id + '">';
+      html += '<div class="card-head"><span class="card-id">' + item.id + '</span>' +
+              '<div><div class="card-name">' + esc(item.name) + '</div>' +
+              '<span class="card-conv">' + esc(item.conv) + '</span></div></div>';
+      html += '<div class="row stok"><span class="row-label">Stok Awal</span><div class="fields">' + stokFields + '</div></div>';
+      html += '<div class="row pakai"><span class="row-label">Pemakaian</span><div class="fields">' + pakaiFields + '</div></div>';
+      html += '<div class="result pending" id="res-' + item.id + '">Klik "Hitung Sisa Stok" untuk melihat hasil</div>';
+      html += '</article>';
+    });
+    html += '</div></section>';
+  });
+  app.innerHTML = html;
+}
+
+/* =========================================================
+   PENYIMPANAN OTOMATIS (localStorage)
+   ========================================================= */
+const STORE_KEY = "neostock-stok-gudang-v1";
+let saveTimer = null;
+
+function storageAvailable(){
+  try{
+    localStorage.setItem("__neostock_test__", "1");
+    localStorage.removeItem("__neostock_test__");
+    return true;
+  }catch(e){ return false; }
+}
+const LS_OK = storageAvailable();
+
+function fieldIds(){
+  const ids = [];
+  ITEMS.forEach(it => {
+    for(let i = 0; i < it.units.length; i++){
+      ids.push("s-" + it.id + "-" + i);
+      ids.push("p-" + it.id + "-" + i);
+    }
+  });
+  return ids;
+}
+
+function setInfo(text, isErr){
+  const el = document.getElementById("saveInfo");
+  if(!el) return;
+  el.textContent = text;
+  if(isErr) el.classList.add("err"); else el.classList.remove("err");
+}
+
+function saveData(){
+  if(!LS_OK){
+    setInfo("PENYIMPANAN TIDAK TERSEDIA", true);
+    return;
+  }
+  const v = {};
+  fieldIds().forEach(id => {
+    const el = document.getElementById(id);
+    if(el) v[id] = el.value;
+  });
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify({v:v, t:Date.now()}));
+    const now = new Date();
+    setInfo("TERSIMPAN OTOMATIS " + now.toLocaleTimeString("id-ID", {hour:"2-digit", minute:"2-digit"}) + " ✓", false);
+  }catch(e){
+    setInfo("GAGAL MENYIMPAN (STORAGE PENUH)", true);
+  }
+}
+
+function scheduleSave(){
+  if(saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveData, 350);
+}
+
+function loadData(){
+  if(!LS_OK) return false;
+  let data;
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return false;
+    data = JSON.parse(raw);
+  }catch(e){ return false; }
+  if(!data || typeof data.v !== "object" || data.v === null) return false;
+
+  let n = 0;
+  Object.keys(data.v).forEach(id => {
+    const el = document.getElementById(id);
+    if(el){
+      el.value = data.v[id];
+      n++;
+    }
+  });
+  if(n > 0 && data.t){
+    const d = new Date(data.t);
+    setInfo("DATA DIMUAT KEMBALI (" + d.toLocaleDateString("id-ID", {day:"2-digit", month:"2-digit", year:"numeric"}) +
+            " " + d.toLocaleTimeString("id-ID", {hour:"2-digit", minute:"2-digit"}) + ") ✓", false);
+  }
+  return n > 0;
+}
+
+function clearAllData(){
+  const konfirmasi = (typeof confirm === "function")
+    ? confirm("Hapus SEMUA data Stok Awal & Pemakaian yang tersimpan?\nTindakan ini tidak bisa dibatalkan.")
+    : true;
+  if(!konfirmasi) return;
+
+  if(saveTimer){ clearTimeout(saveTimer); saveTimer = null; }
+  if(LS_OK){
+    try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  }
+  fieldIds().forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = "0";
+  });
+  ITEMS.forEach(it => {
+    const el = document.getElementById("res-" + it.id);
+    if(el){
+      el.className = "result pending";
+      el.innerHTML = 'Klik "Hitung Sisa Stok" untuk melihat hasil';
+    }
+  });
+
+  document.getElementById("sumOk").textContent = "-";
+  document.getElementById("sumMinus").textContent = "-";
+  const st = document.getElementById("sumStatus");
+  st.textContent = "BELUM DIHITUNG";
+  st.style.color = "#000";
+
+  const wrap = document.getElementById("notaWrap");
+  wrap.classList.add("hidden");
+  wrap.classList.remove("has-nota");
+
+  calculated = false;
+  setInfo("DATA DIHAPUS", false);
+}
+
+/* =========================================================
+   HITUNG
+   ========================================================= */
+function hitung(scrollToNota){
+  let okCount = 0;
+  let minusCount = 0;
+
+  const results = ITEMS.map(item => {
+    const sVals = item.units.map((u, i) => parseNum(document.getElementById("s-" + item.id + "-" + i).value));
+    const pVals = item.units.map((u, i) => parseNum(document.getElementById("p-" + item.id + "-" + i).value));
+    const r = computeItem(item, sVals, pVals);
+    const el = document.getElementById("res-" + item.id);
+
+    if(r.minus){
+      minusCount++;
+      el.className = "result minus";
+      el.innerHTML =
+        '<div class="rwarn">⚠️ SISA MINUS - CEK INPUT!</div>' +
+        '<div class="rtotal">Defisit: ' + esc(formatUnits(Math.abs(r.sisa), item.units)) +
+        ' (Stok ' + esc(r.stokText) + ' &minus; Pakai ' + esc(r.pakaiText) + ')</div>';
+    } else {
+      okCount++;
+      el.className = "result ok";
+      el.innerHTML =
+        '<div class="rlabel">SISA STOK</div>' +
+        '<div class="rvalue">' + esc(r.text) + '</div>' +
+        '<div class="rtotal">Total: ' + esc(fmtNum(r.sisa) + " " + item.units[item.units.length - 1][0]) + '</div>' +
+        '<div class="rbreak">Stok Awal: ' + esc(r.stokText) + ' &bull; Pemakaian: ' + esc(r.pakaiText) + '</div>';
+    }
+    return {item:item, r:r};
+  });
+
+  document.getElementById("sumOk").textContent = String(okCount);
+  document.getElementById("sumMinus").textContent = String(minusCount);
+  const st = document.getElementById("sumStatus");
+  st.textContent = minusCount > 0 ? "ADA DATA MINUS!" : "SEMUA AMAN";
+  st.style.color = minusCount > 0 ? "#FF3B30" : "#0B6B0B";
+
+  renderNota(results, okCount, minusCount);
+
+  calculated = true;
+  scheduleSave();
+  if(scrollToNota === true){
+    const w = document.getElementById("notaWrap");
+    if(w && w.scrollIntoView) w.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+}
+
+/* =========================================================
+   NOTA / REKAP HASIL
+   ========================================================= */
+function renderNota(results, okCount, minusCount){
+  const now = new Date();
+  const tgl = now.toLocaleDateString("id-ID", {weekday:"long", day:"2-digit", month:"long", year:"numeric"});
+  const jam = now.toLocaleTimeString("id-ID", {hour:"2-digit", minute:"2-digit"}) + " WIB";
+  document.getElementById("notaMeta").innerHTML =
+    "DICETAK: " + esc(tgl) + "<br>JAM: " + esc(jam) + "<br>NO. NOTA: NST-" +
+    now.getFullYear() + String(now.getMonth() + 1).padStart(2, "0") + String(now.getDate()).padStart(2, "0") +
+    "-" + String(now.getHours()).padStart(2, "0") + String(now.getMinutes()).padStart(2, "0");
+
+  let rows = "";
+  CATS.forEach(cat => {
+    const list = results.filter(x => x.item.cat === cat.key);
+    rows += '<tr class="cat-row"><td colspan="6">' + esc(cat.title) + '</td></tr>';
+    list.forEach(x => {
+      const it = x.item;
+      const rr = x.r;
+      rows += '<tr class="' + (rr.minus ? "minus-row" : "") + '">' +
+        '<td class="num">' + it.id + '</td>' +
+        '<td class="bname">' + esc(it.name) + '<div style="font-weight:500;font-size:11px;opacity:.7;">' + esc(it.conv) + '</div></td>' +
+        '<td>' + esc(rr.stokText) + '</td>' +
+        '<td>' + esc(rr.pakaiText) + '</td>' +
+        '<td class="sisa">' + esc(rr.text) + '</td>' +
+        '<td style="text-align:center;"><span class="st ' + (rr.minus ? "min" : "ok") + '">' +
+          (rr.minus ? "MINUS" : "OK") + '</span></td>' +
+      '</tr>';
+    });
+  });
+
+  const perSat = {};
+  const satOrder = [];
+  results.forEach(x => {
+    const label = x.item.units[x.item.units.length - 1][0];
+    if(!(label in perSat)){ perSat[label] = 0; satOrder.push(label); }
+    perSat[label] += x.r.sisa;
+  });
+  let rekapHTML = "";
+  satOrder.forEach(label => {
+    rekapHTML += '<div class="rekap-line"><span>Total Sisa ' + esc(label) + '</span><span>' +
+      esc(fmtNum(perSat[label]) + " " + label) + '</span></div>';
+  });
+
+  let html = "";
+  html += '<div class="table-wrap"><table class="nota-table">' +
+    '<thead><tr><th>No</th><th>Barang</th><th>Stok Awal</th><th>Pemakaian</th><th>Sisa Stok</th><th>Status</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table></div>';
+
+  html += '<div class="nota-grid">' +
+    '<div class="nota-card b"><h4>Total Item</h4><div class="big">' + results.length + '</div></div>' +
+    '<div class="nota-card g"><h4>Item Sisa Normal</h4><div class="big">' + okCount + '</div></div>' +
+    '<div class="nota-card ' + (minusCount > 0 ? "r" : "") + '"><h4>Item Sisa Minus</h4><div class="big">' + minusCount + '</div></div>' +
+    '<div class="nota-card" style="grid-column:1/-1;"><h4>Rekap Total Sisa Per Satuan Terkecil</h4>' + rekapHTML + '</div>' +
+    '</div>';
+
+  if(minusCount > 0){
+    html += '<div class="alert-min">⚠️ ADA ' + minusCount + ' ITEM DENGAN SISA MINUS — CEK KEMBALI INPUT STOK AWAL / PEMAKAIAN!</div>';
+  }
+
+  html += '<div class="sign">' +
+    '<div class="box">Dibuat oleh (Petugas Gudang)<div class="line">NAMA &amp; TANDA TANGAN</div></div>' +
+    '<div class="box">Diperiksa oleh (Kepala Gudang)<div class="line">NAMA &amp; TANDA TANGAN</div></div>' +
+    '</div>';
+
+  const body = document.getElementById("notaBody");
+  body.innerHTML = html;
+
+  const wrap = document.getElementById("notaWrap");
+  wrap.classList.remove("hidden");
+  wrap.classList.add("has-nota");
+}
+
+function bind(){
+  document.getElementById("btnHitung").addEventListener("click", () => hitung(true));
+  document.getElementById("btnPrint").addEventListener("click", () => window.print());
+  document.getElementById("btnReset").addEventListener("click", clearAllData);
+  app.addEventListener("input", e => {
+    if(e.target && e.target.tagName === "INPUT"){
+      scheduleSave();
+      if(calculated) hitung(false);
+    }
+  });
+}
+
+render();
+bind();
+
+if(!LS_OK){
+  setInfo("PENYIMPANAN TIDAK TERSEDIA", true);
+} else if(loadData()){
+  hitung(false);
+} else {
+  setInfo("AUTO-SAVE AKTIF — BELUM ADA DATA", false);
+}
+</script>
+</body>
+</html>
