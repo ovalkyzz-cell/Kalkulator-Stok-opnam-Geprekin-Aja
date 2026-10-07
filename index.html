@@ -235,7 +235,6 @@
   }
 
   /* ===== NOTA / REKAP HASIL ===== */
-  .hidden{display:none;}
   #notaWrap{margin-top:8px;}
   .nota{
     background:var(--paper);border:4px solid #000;box-shadow:8px 8px 0 #000;
@@ -584,6 +583,10 @@
     .sign .box{break-inside:avoid;}
     tr{break-inside:avoid;page-break-inside:avoid;}
   }
+
+  /* .hidden sengaja ditaruh paling akhir supaya menang atas class lain
+     dengan spesifisitas sama (mis. .scan-overlay yang memakai display:flex) */
+  .hidden{display:none;}
 </style>
 </head>
 <body>
