@@ -532,6 +532,9 @@
       <button class="crew-chip" id="crew2" type="button" data-idx="2">
         <span class="av">MD</span><span>Mbak Desti</span>
       </button>
+      <button class="crew-chip" id="crew3" type="button" data-idx="3">
+        <span class="av">AK</span><span>Anggiku</span>
+      </button>
     </div>
 
     <div class="pass-row" id="passRow">
@@ -943,7 +946,8 @@ function sha256(msg){
 const CREW = [
   {id:"naufal", name:"Maz-Naufal", ini:"MN", hash:"48aeae72169ab8661f45c301a3949173242a17f3e3752685aa92639ff9cd2fe2"},
   {id:"afifah", name:"Mbak Afifah", ini:"MA", hash:"d9d88ab8c328d44f2262b33e210189621649cd133c70028b749b7255ed802f4c"},
-  {id:"desti",  name:"Mbak Desti",  ini:"MD", hash:"437abcd24c9b0a2da56f78a0e92094152baae1087904c7b15b7e4f27f89a4bc7"}
+  {id:"desti",  name:"Mbak Desti",  ini:"MD", hash:"437abcd24c9b0a2da56f78a0e92094152baae1087904c7b15b7e4f27f89a4bc7"},
+  {id:"anggiku",name:"Anggiku",     ini:"AK", hash:"1a612fa7f80f4ce2647698c786e958382596da609a06329eb8f051039e12b5b6"}
 ];
 const SESSION_KEY = "neostock-session-v1";
 let session = null;
@@ -1097,6 +1101,7 @@ const SFX = {
   crewA : {f:[880],            d:.06, t:"square",   v:.12},
   crewB : {f:[990],            d:.06, t:"square",   v:.12},
   crewC : {f:[1175],           d:.06, t:"square",   v:.12},
+  crewD : {f:[1318],           d:.06, t:"square",   v:.12},
   login : {f:[523,659,784],    d:.11, t:"sine",     v:.14},
   guest : {f:[392,523],        d:.10, t:"triangle", v:.13},
   error : {f:[180,140],        d:.15, t:"sawtooth", v:.16},
@@ -1156,7 +1161,7 @@ function bindSfx(){
   const map = {
     btnHitung:"hitung", btnPrint:"print", btnReset:"reset",
     btnGuest:"guest", btnEye:"eye", btnLogout:"logout",
-    crew0:"crewA", crew1:"crewB", crew2:"crewC",
+    crew0:"crewA", crew1:"crewB", crew2:"crewC", crew3:"crewD",
     btnRiwayat:"list", btnSimpan:"save", btnRefresh:"refresh",
     btnTutupRiwayat:"close"
   };
